@@ -1,6 +1,7 @@
 import { createPortal } from "react-dom";
 import type { Movie } from "../../types/movie";
 import css from "./MovieModal.module.css";
+import { useEffect } from "react";
 
 interface MovieModalResponse {
   movie: Movie;
@@ -8,9 +9,32 @@ interface MovieModalResponse {
 }
 
 function MovieModal({ movie, onClose }: MovieModalResponse) {
+  useEffect(() => {
+    const escape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("keydown", escape);
+    };
+  }, [onClose]);
+
+  const hadleCloseModalClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return createPortal(
     <>
-      <div className={css.backdrop} role="dialog" aria-modal="true">
+      <div
+        className={css.backdrop}
+        role="dialog"
+        aria-modal="true"
+        onClick={hadleCloseModalClick}
+      >
         <div className={css.modal}>
           <button
             className={css.closeButton}
@@ -21,7 +45,7 @@ function MovieModal({ movie, onClose }: MovieModalResponse) {
           </button>
           <img
             src={`https://image.tmdb.org/t/p/w500${movie.backdrop_path}`}
-            alt="movie_title"
+            alt={movie.title}
             className={css.image}
           />
           <div className={css.content}>
