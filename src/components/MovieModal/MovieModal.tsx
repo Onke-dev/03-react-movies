@@ -3,12 +3,12 @@ import type { Movie } from "../../types/movie";
 import css from "./MovieModal.module.css";
 import { useEffect } from "react";
 
-interface MovieModalResponse {
+interface MovieModalProps {
   movie: Movie;
   onClose: () => void;
 }
 
-function MovieModal({ movie, onClose }: MovieModalResponse) {
+function MovieModal({ movie, onClose }: MovieModalProps) {
   useEffect(() => {
     const escape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -16,8 +16,10 @@ function MovieModal({ movie, onClose }: MovieModalResponse) {
       }
     };
     document.addEventListener("keydown", escape);
+    document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", escape);
+      document.body.style.overflow = "auto";
     };
   }, [onClose]);
 

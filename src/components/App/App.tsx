@@ -9,25 +9,27 @@ import Loader from "../Loader/Loader";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 
 function App() {
-  const [nameMovie, setnameMovie] = useState<Movie[]>([]);
+  const [movies, setMovies] = useState<Movie[]>([]);
   const [selectMovie, setSelectMovie] = useState<Movie | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLodaing, setIsLodaing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
 
   const handleSubmit = async (query: string) => {
     try {
-      setIsLodaing(true);
-      const date = await fetchMovies(query);
-      if (date.length === 0) {
+      setIsLoading(true);
+      setIsError(false);
+      setMovies([]);
+      const response = await fetchMovies(query);
+      if (response.length === 0) {
         toast.error("No movies found for your request.");
       } else {
-        setnameMovie(date);
+        setMovies(response);
       }
     } catch {
       setIsError(true);
     } finally {
-      setIsLodaing(false);
+      setIsLoading(false);
     }
   };
 
@@ -35,16 +37,19 @@ function App() {
     setSelectMovie(movie);
     setIsModalOpen(true);
   };
-  const closeModal = () => setIsModalOpen(false);
+  const closeModal = () => {
+    setSelectMovie(null);
+    setIsModalOpen(false);
+  };
 
   return (
     <>
       <SearchBar onSubmit={handleSubmit} />
       <MovieGrid
-        movies={nameMovie}
+        movies={movies}
         onSelect={(movie: Movie) => openModal(movie)}
       />
-      {isLodaing && <Loader />}
+      {isLoading && <Loader />}
       {isModalOpen && selectMovie && (
         <MovieModal onClose={closeModal} movie={selectMovie} />
       )}
